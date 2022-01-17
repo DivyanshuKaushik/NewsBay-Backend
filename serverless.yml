@@ -1,6 +1,4 @@
 service: newsbay-backend
-app: newsbay-backend
-org: divyanshukaushik
 
 frameworkVersion: '2'
 
