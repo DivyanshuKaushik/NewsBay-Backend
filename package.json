@@ -2,7 +2,15 @@
   "name": "newsbay-backend",
   "version": "1.0.0",
   "description": "",
-  "main": "handler.js",
+  "main": "webpack.config.js",
+  "dependencies": {
+    "aws-sdk": "^2.1056.0",
+    "moment": "^2.29.1",
+    "serverless-webpack": "^5.6.0",
+    "uuid": "^8.3.2",
+    "webpack": "^5.66.0"
+  },
+  "devDependencies": {},
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -10,17 +18,11 @@
     "type": "git",
     "url": "git+https://github.com/DivyanshuKaushik/NewsBay-Backend.git"
   },
-  "author": "Divyanshu Kaushik",
+  "keywords": [],
+  "author": "",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/DivyanshuKaushik/NewsBay-Backend/issues"
   },
-  "homepage": "https://github.com/DivyanshuKaushik/NewsBay-Backend#readme",
-  "dependencies": {
-    "aws-sdk": "^2.1055.0",
-    "moment": "^2.29.1",
-    "serverless-webpack": "^5.6.0",
-    "uuid": "^8.3.2",
-    "webpack": "^5.66.0"
-  }
+  "homepage": "https://github.com/DivyanshuKaushik/NewsBay-Backend#readme"
 }

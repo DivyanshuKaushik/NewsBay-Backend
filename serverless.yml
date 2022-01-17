@@ -10,43 +10,71 @@ provider:
   profile: serverless-Divyanshu
   stage: dev
   environment: 
-    tableName: ${self:custom.tableName}
-    bucketName: ${self:custom.bucketName}
+    TableName: ${self:custom.tableName}
+    BucketName: ${self:custom.bucketName}
   iamRoleStatements:
     - Effect: Allow
       Action:
         - dynamodb:*
       Resource: '*'
+
+plugins:
+  - serverless-webpack
+
+package:
+  individually: true
+
 custom:
   tableName: newsbay-table
   bucketName: news-bay-bucket
 
 functions:
-  hello:
-    handler: handler.hello
-    events:
-      - http:
-          path: hello
-          method: GET
   getCategory:
     handler: lambdas/getCategory.handler
     events:
       - http: 
           path: category
           method: GET
+          authorizer: aws_iam
   addCategory:
     handler: lambdas/addCategory.handler
     events:
       - http: 
           path: category
           method: POST
+  articles:
+    handler: lambdas/articles.handler
+    events:
+      - http: 
+          path: articles
+          method: ANY
+  editorJob:
+    handler: lambdas/editorJob.handler
+    events:
+      - http:
+          path: getUnpublishedPosts
+          method: GET
+      - http:
+          path: postStatus
+          method: PATCH
+      - http:
+          path: deletePost/{id}
+          method: DELETE
+  getArticles:
+    handler: lambdas/getArticles.handler
+    events:
+      - http:
+          path: getArticles
+          method: GET
 
 resources:
   Resources:
+  # s3 Bucket
     NewsBayBucket:
       Type: AWS::S3::Bucket
       Properties:
         BucketName: ${self:custom.bucketName}
+  # DynamoDB
     NewsBayDynamoDBTable:
       Type: AWS::DynamoDB::Table
       Properties:
@@ -73,3 +101,101 @@ resources:
                 KeyType: RANGE 
             Projection:
               ProjectionType: ALL
+  # Cognito for Authentication
+    CognitoUserPool:
+      Type: AWS::Cognito::UserPool
+      Properties:
+        UserPoolName: newsbay-${self:provider.stage}-user-pool
+    # Cognito - Client
+    CognitoUserPoolClient:
+      Type: AWS::Cognito::UserPoolClient
+      Properties:
+        ClientName: newsbay-${self:provider.stage}-client
+        UserPoolId:
+          Ref: CognitoUserPool
+    # Cognito - Identity
+    CognitoIdentityPool:
+      Type: AWS::Cognito::IdentityPool
+      Properties:
+        IdentityPoolName: newsbay-${self:provider.stage}-identity-pool
+        AllowUnauthenticatedIdentities: true
+        CognitoIdentityProviders:
+          - ClientId:
+              Ref: CognitoUserPoolClient
+            ProviderName:
+              Fn::GetAtt: [CognitoUserPool, ProviderName]
+    # Cognito roles
+    CognitoIdentityPoolRoles:
+      Type: AWS::Cognito::IdentityPoolRoleAttachment
+      Properties:
+        IdentityPoolId:
+          Ref: CognitoIdentityPool
+        Roles:
+          authenticated:
+            Fn::GetAtt: [CognitoAdminAuthRole, Arn]
+          unauthenticated:
+            Fn::GetAtt: [CognitoUnauthRole, Arn]
+    CognitoAdminAuthRole:
+      Type: AWS::IAM::Role
+      Properties:
+        RoleName: NewsBayAdminAuthRole
+        Path: /
+        AssumeRolePolicyDocument:
+          Version: "2012-10-17"
+          Statement:
+            - Effect: "Allow"
+              Principal:
+                Federated: "cognito-identity.amazonaws.com"
+              Action:
+                - "sts:AssumeRoleWithWebIdentity"
+              Condition:
+                StringEquals:
+                  "cognito-identity.amazonaws.com:aud":
+                    Ref: CognitoIdentityPool
+                "ForAnyValue:StringLike":
+                  "cognito-identity.amazonaws.com:amr": authenticated
+        Policies:
+          - PolicyName: "CognitoAuthorizedPolicy"
+            PolicyDocument:
+              Version: "2012-10-17"
+              Statement:
+                - Effect: "Allow"
+                  Action:
+                    - "mobileanalytics:PutEvents"
+                    - "cognito-sync:*"
+                    - "cognito-identity:*"
+                  Resource: "*"
+                - Effect: "Allow"
+                  Action:
+                    - "execute-api:Invoke"
+                  Resource: "*"
+    CognitoUnauthRole:
+      Type: AWS::IAM::Role
+      Properties:
+        RoleName: appUnauthRole
+        Path: /
+        AssumeRolePolicyDocument:
+          Version: "2012-10-17"
+          Statement:
+            - Effect: "Allow"
+              Principal:
+                Federated: "cognito-identity.amazonaws.com"
+              Action:
+                - "sts:AssumeRoleWithWebIdentity"
+              Condition:
+                StringEquals:
+                  "cognito-identity.amazonaws.com:aud":
+                    Ref: CognitoIdentityPool
+                "ForAnyValue:StringLike":
+                  "cognito-identity.amazonaws.com:amr": unauthenticated
+        Policies:
+          - PolicyName: "CognitoUnauthorizedPolicy"
+            PolicyDocument:
+              Version: "2012-10-17"
+              Statement:
+                - Effect: "Allow"
+                  Action:
+                    - "mobileanalytics:PutEvents"
+                    - "cognito-sync:*"
+                    - "cognito-identity:*"
+                  Resource: "*"

@@ -1,7 +1,7 @@
 const AWS = require('aws-sdk')
 
 const docClient = new AWS.DynamoDB.DocumentClient()
-
+const Response = require('./Response')
 const DB = {
     async scan(TableName){
         const params = {
@@ -64,6 +64,32 @@ const DB = {
             throw Error("There was an error while adding data")
         }
         return data
+    },
+    async update(pk,sk,updateKey,updatevalue,TableName){
+        try{
+            const params = {
+                TableName,
+                Key:{
+                    pk,sk
+                },
+                UpdateExpression: "set #updateKey = :value",
+                ExpressionAttributeNames:{
+                    "#updateKey":updateKey
+                },
+                ExpressionAttributeValues:{
+                    ":value":updatevalue
+                },
+                ReturnValues:"UPDATED_NEW"
+            };
+           
+            const res = await DB.update(params).promise()
+            if(!res){
+                throw Error("There was an error while adding data")
+            }
+            return data
+        }catch(error){
+            Response(400,{error})
+        }
     },
 }
 module.exports = DB; 
