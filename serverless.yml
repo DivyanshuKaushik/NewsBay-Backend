@@ -111,7 +111,7 @@ resources:
     Type: AWS::Cognito::UserPool
     Properties:
       # Generate a name based on the stage
-      UserPoolName: newsbay_${self:custom.stage}_user_pool
+      UserPoolName: newsbay_${self:provider.stage}_user_pool
       # Set email as an alias
       UsernameAttributes:
         - email
@@ -122,7 +122,7 @@ resources:
     Type: AWS::Cognito::UserPoolClient
     Properties:
       # Generate an app client name based on the stage
-      ClientName: newsbay_${self:custom.stage}_user_pool_client
+      ClientName: newsbay_${self:provider.stage}_user_pool_client
       UserPoolId:
         Ref: CognitoUserPool
       ExplicitAuthFlows:
