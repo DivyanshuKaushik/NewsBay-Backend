@@ -143,7 +143,7 @@ resources:
         GroupName: "editor"
         UserPoolId:
           Ref: CognitoUserPool 
-  CognitoUserPoolGroupEditor:
+  CognitoUserPoolGroupReporter:
       Type: AWS::Cognito::UserPoolGroup
       Properties: 
         Description: "Newsbay Reporters"
