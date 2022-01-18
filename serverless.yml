@@ -29,41 +29,47 @@ custom:
   bucketName: news-bay-bucket
 
 functions:
+  authenticate:
+    handler: lambdas/authenticate.handler
   getCategory:
     handler: lambdas/getCategory.handler
     events:
       - http: 
-          path: category
+          path: api/v2/category
           method: GET
   addCategory:
     handler: lambdas/addCategory.handler
     events:
       - http: 
-          path: category
+          path: api/v2/category
           method: POST
   articles:
     handler: lambdas/articles.handler
     events:
       - http: 
-          path: articles
+          path: api/v2/articles
           method: ANY
+          authorizer: 
+            name: authenticate
+            identitySource: method.request.header.Authorization
+            type: token
   editorJob:
     handler: lambdas/editorJob.handler
     events:
       - http:
-          path: getUnpublishedPosts
+          path: api/v2/getUnpublishedPosts
           method: GET
       - http:
-          path: postStatus
+          path: api/v2/postStatus
           method: PATCH
       - http:
-          path: deletePost/{id}
+          path: api/v2/deletePost/{id}
           method: DELETE
   getArticles:
     handler: lambdas/getArticles.handler
     events:
       - http:
-          path: getArticles
+          path: api/v2/getArticles
           method: GET
 
 resources:
@@ -100,3 +106,47 @@ resources:
                 KeyType: RANGE 
             Projection:
               ProjectionType: ALL
+  # Cognito
+  CognitoUserPool:
+    Type: AWS::Cognito::UserPool
+    Properties:
+      # Generate a name based on the stage
+      UserPoolName: newsbay_${self:custom.stage}_user_pool
+      # Set email as an alias
+      UsernameAttributes:
+        - email
+      AutoVerifiedAttributes:
+        - email
+
+  CognitoUserPoolClient:
+    Type: AWS::Cognito::UserPoolClient
+    Properties:
+      # Generate an app client name based on the stage
+      ClientName: newsbay_${self:custom.stage}_user_pool_client
+      UserPoolId:
+        Ref: CognitoUserPool
+      ExplicitAuthFlows:
+        - ADMIN_NO_SRP_AUTH
+      GenerateSecret: false
+
+  CognitoUserPoolGroupAdmin:
+      Type: AWS::Cognito::UserPoolGroup
+      Properties: 
+        Description: "Newsbay Admins"
+        GroupName: "admin"
+        UserPoolId:
+          Ref: CognitoUserPool 
+  CognitoUserPoolGroupEditor:
+      Type: AWS::Cognito::UserPoolGroup
+      Properties: 
+        Description: "Newsbay Editors"
+        GroupName: "editor"
+        UserPoolId:
+          Ref: CognitoUserPool 
+  CognitoUserPoolGroupEditor:
+      Type: AWS::Cognito::UserPoolGroup
+      Properties: 
+        Description: "Newsbay Reporters"
+        GroupName: "reporter"
+        UserPoolId:
+          Ref: CognitoUserPool 
