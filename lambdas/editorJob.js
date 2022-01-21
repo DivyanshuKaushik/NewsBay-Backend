@@ -1,5 +1,6 @@
 const AWS = require('aws-sdk')
 const Response = require('./utils/Response')
+const { deleteImage } = require('./utils/S3')
 const DB = new AWS.DynamoDB.DocumentClient()
 
 module.exports.handler = async event =>{
@@ -49,9 +50,12 @@ module.exports.handler = async event =>{
             return Response(200,{message:`Article ${status}!!`,res})
 
         }
-        if(event.path==`/deletePost/${event.pathParameters.id}`){
-            const {id} = event.pathParameters
-            console.log('inside');
+        if(event.path==`/deletePost`){
+            const {id,image} = event.queryStringParameters
+            const delete_img = await deleteImage(image.split('.com/')[1])
+            if(!delete_img){
+                return Response(400,{message:"Error Deleting Article!!"})
+            }
             const params = {
                 TableName,
                 Key:{

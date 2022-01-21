@@ -1,8 +1,8 @@
 const AWS = require('aws-sdk')
 const Response = require('./utils/Response')
 const DB = new AWS.DynamoDB.DocumentClient()
-const uuid = require('uuid')
 const moment = require('moment')
+const {uploadImage} = require('./utils/S3')
 
 module.exports.handler = async(event)=>{
     try{
@@ -37,7 +37,7 @@ module.exports.handler = async(event)=>{
             }
         }
         if(event.httpMethod=='POST'){
-            let { user,title,summary,source,imageUrl,category,tags,type,author } = JSON.parse(event.body)
+            let { user,title,summary,source,image,category,tags,type,author } = JSON.parse(event.body)
             const generateId = ()=>{
                 let date = new Date().toLocaleDateString().split('/').reverse().join("")
                 let time = new Date().toTimeString().split(' ')[0].split(':').join('')
@@ -45,17 +45,22 @@ module.exports.handler = async(event)=>{
             }
             const articleId = generateId()
             user = `user_${user}`
+            const sk = `article_${category}_${articleId}`
+            const imageUrl = await uploadImage(image,sk)
+            if(!imageUrl){
+                return Response(422,{message:"Image Upload Failed!!"})
+            }
             const params = {
                 TableName,
                 Item:{
                     pk: `NewsBay_Article`,
-                    sk: `article_${category}_${articleId}`,
+                    sk,
                     user,
                     id:articleId,
                     title,
                     summary,
                     source,
-                    imageUrl,
+                    image:imageUrl,
                     category,
                     tags,
                     type,

@@ -7,7 +7,7 @@ provider:
   runtime: nodejs12.x
   lambdaHashingVersion: 20201221
   region: ap-south-1
-  # profile: serverless-Divyanshu
+  profile: serverless-Divyanshu
   stage: dev
   environment: 
     TableName: ${self:custom.tableName}
@@ -16,6 +16,7 @@ provider:
     - Effect: Allow
       Action:
         - dynamodb:*
+        - s3:*
       Resource: '*'
 
 plugins:
@@ -43,28 +44,45 @@ functions:
       - http: 
           path: api/v2/category
           method: POST
+          authorizer: 
+            name: authenticate
+            identitySource: method.request.header.Authorization
+            type: token
   articles:
     handler: lambdas/articles.handler
     events:
       - http: 
           path: api/v2/articles
           method: ANY
-          authorizer: 
-            name: authenticate
-            identitySource: method.request.header.Authorization
-            type: token
+          cors: true
+          # authorizer: 
+          #   name: authenticate
+          #   identitySource: method.request.header.Authorization
+          #   type: token
   editorJob:
     handler: lambdas/editorJob.handler
     events:
       - http:
           path: api/v2/getUnpublishedPosts
           method: GET
+          # authorizer: 
+          #   name: authenticate
+          #   identitySource: method.request.header.Authorization
+          #   type: token
       - http:
           path: api/v2/postStatus
           method: PATCH
+          # authorizer: 
+          #   name: authenticate
+          #   identitySource: method.request.header.Authorization
+          #   type: token
       - http:
-          path: api/v2/deletePost/{id}
+          path: api/v2/deletePost
           method: DELETE
+          # authorizer: 
+          #   name: authenticate
+          #   identitySource: method.request.header.Authorization
+          #   type: token
   getArticles:
     handler: lambdas/getArticles.handler
     events:
@@ -79,6 +97,7 @@ resources:
       Type: AWS::S3::Bucket
       Properties:
         BucketName: ${self:custom.bucketName}
+        AccessControl: PublicRead
   # DynamoDB
     NewsBayDynamoDBTable:
       Type: AWS::DynamoDB::Table
@@ -107,43 +126,43 @@ resources:
             Projection:
               ProjectionType: ALL
   # Cognito
-  CognitoUserPool:
-    Type: AWS::Cognito::UserPool
-    Properties:
-      # Generate a name based on the stage
-      UserPoolName: newsbay_${self:provider.stage}_user_pool
-      # Set email as an alias
-      UsernameAttributes:
-        - email
-      AutoVerifiedAttributes:
-        - email
+    CognitoUserPool:
+      Type: AWS::Cognito::UserPool
+      Properties:
+        # Generate a name based on the stage
+        UserPoolName: newsbay_${self:provider.stage}_user_pool
+        # Set email as an alias
+        UsernameAttributes:
+          - email
+        AutoVerifiedAttributes:
+          - email
 
-  CognitoUserPoolClient:
-    Type: AWS::Cognito::UserPoolClient
-    Properties:
-      # Generate an app client name based on the stage
-      ClientName: newsbay_${self:provider.stage}_user_pool_client
-      UserPoolId:
-        Ref: CognitoUserPool
-      ExplicitAuthFlows:
-        - ADMIN_NO_SRP_AUTH
-      GenerateSecret: false
+    CognitoUserPoolClient:
+      Type: AWS::Cognito::UserPoolClient
+      Properties:
+        # Generate an app client name based on the stage
+        ClientName: newsbay_${self:provider.stage}_user_pool_client
+        UserPoolId:
+          Ref: CognitoUserPool
+        ExplicitAuthFlows:
+          - ADMIN_NO_SRP_AUTH
+        GenerateSecret: false
 
-  CognitoUserPoolGroupAdmin:
+    CognitoUserPoolGroupAdmin:
       Type: AWS::Cognito::UserPoolGroup
       Properties: 
         Description: "Newsbay Admins"
         GroupName: "admin"
         UserPoolId:
           Ref: CognitoUserPool 
-  CognitoUserPoolGroupEditor:
+    CognitoUserPoolGroupEditor:
       Type: AWS::Cognito::UserPoolGroup
       Properties: 
         Description: "Newsbay Editors"
         GroupName: "editor"
         UserPoolId:
           Ref: CognitoUserPool 
-  CognitoUserPoolGroupReporter:
+    CognitoUserPoolGroupReporter:
       Type: AWS::Cognito::UserPoolGroup
       Properties: 
         Description: "Newsbay Reporters"

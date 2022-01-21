@@ -1,20 +1,30 @@
+const jwt = require('jsonwebtoken')
 exports.handler = async function (event) {
-    const token = event.authorizationToken.toLowerCase();
-    const methodArn = event.methodArn;
-
-    // const adminArn = "*"
-    // const editorArn = []
-    // const reporterArn = []
-
-    switch (token) {
-        case 'admin':
-            return generateAuthResponse('admin', 'Allow', methodArn);
-        case 'editor':
-            return generateAuthResponse('editor', 'Allow', methodArn);
-        case 'reporter':
-            return generateAuthResponse('editor', 'Allow', methodArn);
-        default:
+    try{
+        const token = event.authorizationToken;
+        const group = jwt.decode(token)['cognito:groups'][0]
+        if(!group){
             return generateAuthResponse('user', 'Deny', methodArn);
+        }
+    
+        const methodArn = event.methodArn;
+    
+        // const adminArn = "*"
+        // const editorArn = []
+        // const reporterArn = []
+    
+        switch (group.toLowerCase()) {
+            case 'admin':
+                return generateAuthResponse('admin', 'Allow', methodArn);
+            case 'editor':
+                return generateAuthResponse('editor', 'Allow', methodArn);
+            case 'reporter':
+                return generateAuthResponse('reporter', 'Allow', methodArn);
+            default:
+                return generateAuthResponse('user', 'Deny', methodArn);
+        }
+    }catch(err){
+        return generateAuthResponse('user', 'Deny', methodArn);
     }
 }
 
