@@ -20,6 +20,7 @@ const uploadImage = (image,name) =>{
             const image_data_as_base64 = image.replace(/^data:image\/\w+;base64,/,'')
             const decoded_image = Buffer.from(image_data_as_base64,'base64')
             const optimized_image = await sharp(decoded_image).webp().toBuffer()
+            // const optimized_image = decoded_image
     
             const key = `${name}.webp`
     
