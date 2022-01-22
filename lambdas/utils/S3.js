@@ -30,31 +30,29 @@ const uploadImage = (image,name) =>{
                     ACL: 'public-read'
                 })
                 .promise();
-            resolve(upload.Location)
+            return resolve(upload.Location)
             
         }catch(error){
-            reject(error)
+            return reject(error)
         }
     })
 }
 
 const deleteImage = (name) =>{
-    return new Promise((resolve,reject)=>{
+    return new Promise(async(resolve,reject)=>{
         try{
             const params = {
                 Bucket:BucketName,
                 Key:name
             }
-             s3.deleteObject(params,function(err,data){
-                if(err){
-                    throw new Error(err)
-                }else{
-                    resolve("Image Deleted Successfully!!")
-                }
-             })
+            const remove = await s3.deleteObject(params).promise()
+            if(!remove){
+                throw new Error("Error")
+            }
+            return resolve("Image Deleted Successfully!!")
             
         }catch(error){
-            reject(Error("Error Deleting Image!!"))
+            return reject(Error("Error Deleting Image!!"))
         }
     })
 }

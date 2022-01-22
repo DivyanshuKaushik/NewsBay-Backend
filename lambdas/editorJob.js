@@ -52,7 +52,8 @@ module.exports.handler = async event =>{
         }
         if(event.path==`/deletePost`){
             const {id,image} = event.queryStringParameters
-            const delete_img = await deleteImage(image.split('.com/')[1])
+            const img_name = image.split('.com/')[1]
+            const delete_img = await deleteImage(img_name)
             if(!delete_img){
                 return Response(400,{message:"Error Deleting Article!!"})
             }
