@@ -55,34 +55,18 @@ functions:
           path: api/v2/articles
           method: ANY
           cors: true
-          # authorizer: 
-          #   name: authenticate
-          #   identitySource: method.request.header.Authorization
-          #   type: token
   editorJob:
     handler: lambdas/editorJob.handler
     events:
       - http:
           path: api/v2/getUnpublishedPosts
           method: GET
-          # authorizer: 
-          #   name: authenticate
-          #   identitySource: method.request.header.Authorization
-          #   type: token
       - http:
           path: api/v2/postStatus
           method: PATCH
-          # authorizer: 
-          #   name: authenticate
-          #   identitySource: method.request.header.Authorization
-          #   type: token
       - http:
           path: api/v2/deletePost
           method: DELETE
-          # authorizer: 
-          #   name: authenticate
-          #   identitySource: method.request.header.Authorization
-          #   type: token
   getArticles:
     handler: lambdas/getArticles.handler
     events:
