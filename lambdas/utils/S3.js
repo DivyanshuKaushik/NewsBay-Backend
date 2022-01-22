@@ -1,6 +1,7 @@
 const AWS = require('aws-sdk')
 const s3 = new AWS.S3()
 const BucketName = process.env.BucketName
+const sharp = require('sharp')
 
 const uploadImage = (image,name) =>{
     return new Promise(async(resolve,reject)=>{
@@ -18,15 +19,16 @@ const uploadImage = (image,name) =>{
     
             const image_data_as_base64 = image.replace(/^data:image\/\w+;base64,/,'')
             const decoded_image = Buffer.from(image_data_as_base64,'base64')
+            const optimized_image = await sharp(decoded_image).webp().toBuffer()
     
-            const key = `${name}.${mimType.split('/')[1]}`
+            const key = `${name}.webp`
     
             const upload = await s3
                 .upload({
                     Bucket: BucketName,
-                    Body: decoded_image,
+                    Body: optimized_image,
                     Key: key,
-                    ContentType: mimType,
+                    ContentType: "image/webp",
                     ACL: 'public-read'
                 })
                 .promise();
