@@ -1,6 +1,6 @@
 const AWS = require('aws-sdk')
 const Response = require('./utils/Response')
-const { deleteImage } = require('./utils/S3')
+// const { deleteImage } = require('./utils/S3')
 const DB = new AWS.DynamoDB.DocumentClient()
 
 module.exports.handler = async event =>{
@@ -50,26 +50,26 @@ module.exports.handler = async event =>{
             return Response(200,{message:`Article ${status}!!`,res})
 
         }
-        if(event.path==`/deletePost`){
-            const {id,image} = event.queryStringParameters
-            const img_name = image.split('.com/')[1]
-            // const delete_img = await deleteImage(img_name)
-            const delete_img = false
-            if(!delete_img){
-                return Response(400,{message:"Error Deleting Article!!"})
-            }
-            const params = {
-                TableName,
-                Key:{
-                    pk:"NewsBay_Article",
-                    sk:id
-                }
-            }
-            const res = await DB.delete(params).promise()
-            return Response(200,{message:"Article deleted successfully!!"}) 
-        }
+        // if(event.path==`/deletePost`){
+        //     const {id,image} = event.queryStringParameters
+        //     const img_name = image.split('.com/')[1]
+        //     // const delete_img = await deleteImage(img_name)
+        //     const delete_img = false
+        //     if(!delete_img){
+        //         return Response(400,{message:"Error Deleting Article!!"})
+        //     }
+        //     const params = {
+        //         TableName,
+        //         Key:{
+        //             pk:"NewsBay_Article",
+        //             sk:id
+        //         }
+        //     }
+        //     const res = await DB.delete(params).promise()
+        //     return Response(200,{message:"Article deleted successfully!!"}) 
+        // }
 
     }catch(error){
-        Response(400,{error})
+        return Response(400,{error})
     }
 }
