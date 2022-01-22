@@ -1,7 +1,7 @@
 module.exports = {
   target: "node",
   mode: "production",
-  // externals: {
-  //   'sharp': 'commonjs sharp'
-  // }
+  externals: {
+    'sharp': 'commonjs sharp'
+  }
 };

@@ -20,7 +20,7 @@ provider:
       Resource: '*'
 
 plugins:
-  - serverless-webpack
+  # - serverless-webpack
 
 package:
   individually: true
@@ -28,6 +28,10 @@ package:
 custom:
   tableName: newsbay-table
   bucketName: news-bay-bucket
+  webpack:
+    packagerOptions:
+      scripts:
+        - npm install --arch=x64 --platform=linux sharp
 
 functions:
   authenticate:
