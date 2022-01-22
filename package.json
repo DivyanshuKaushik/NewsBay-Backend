@@ -11,10 +11,7 @@
     "sharp": "^0.29.3",
     "webpack": "^5.66.0"
   },
-  "devDependencies": {
-    "babel-loader": "^8.2.3",
-    "node-loader": "^2.0.0"
-  },
+  "devDependencies": {},
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },

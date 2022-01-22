@@ -26,10 +26,6 @@ package:
   individually: true
 
 custom:
-  webpack:
-    webpackConfig: 'webpack.config.js'
-    includeModules: false 
-    packager: 'npm' 
   tableName: newsbay-table
   bucketName: news-bay-bucket
 
