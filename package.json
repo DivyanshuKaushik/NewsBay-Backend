@@ -11,7 +11,9 @@
     "sharp": "^0.29.3",
     "webpack": "^5.66.0"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "node-loader": "^2.0.0"
+  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
