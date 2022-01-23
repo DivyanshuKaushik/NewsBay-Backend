@@ -42,16 +42,18 @@ functions:
       - http: 
           path: api/v2/category
           method: GET
+          cors: true
   addCategory:
     handler: lambdas/addCategory.handler
     events:
       - http: 
           path: api/v2/category
           method: POST
-          authorizer: 
-            name: authenticate
-            identitySource: method.request.header.Authorization
-            type: token
+          cors: true
+          # authorizer: 
+          #   name: authenticate
+          #   identitySource: method.request.header.Authorization
+          #   type: token
   articles:
     handler: lambdas/articles.handler
     events:
@@ -65,18 +67,22 @@ functions:
       - http:
           path: api/v2/getUnpublishedPosts
           method: GET
+          cors: true
       - http:
           path: api/v2/postStatus
           method: PATCH
+          cors: true
       - http:
           path: api/v2/deletePost
           method: DELETE
+          cors: true
   getArticles:
     handler: lambdas/getArticles.handler
     events:
       - http:
           path: api/v2/getArticles
           method: GET
+          cors: true
 
 resources:
   Resources:
