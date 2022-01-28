@@ -2,27 +2,29 @@ const jwt = require('jsonwebtoken')
 exports.handler = async function (event) {
     try{
         const token = event.authorizationToken;
-        const group = jwt.decode(token)['cognito:groups'][0]
+        const group = jwt.decode(token)['cognito:groups']
         if(!group){
             return generateAuthResponse('user', 'Deny', methodArn);
         }
     
         const methodArn = event.methodArn;
-    
-        // const adminArn = "*"
-        // const editorArn = []
-        // const reporterArn = []
-    
-        switch (group.toLowerCase()) {
-            case 'admin':
-                return generateAuthResponse('admin', 'Allow', methodArn);
-            case 'editor':
-                return generateAuthResponse('editor', 'Allow', methodArn);
-            case 'reporter':
-                return generateAuthResponse('reporter', 'Allow', methodArn);
-            default:
-                return generateAuthResponse('user', 'Deny', methodArn);
+        let baseArn = "arn:aws:execute-api:ap-south-1:067691963636:d7unnt51ud/*/*/api/v2"
+        // arn:aws:execute-api:ap-south-1:067691963636:d7unnt51ud/*/*/api/v2/articles
+
+        const adminArn = "*"
+        const editorArn = [baseArn.concat('/articles'),baseArn.concat('/getUnpublishedPosts'),baseArn.concat('/postStatus'),baseArn.concat('/deletePost')]
+        const reporterArn = [baseArn.concat('/articles')]
+
+        if(group.includes('admin')){
+            return generateAuthResponse('admin', 'Allow', adminArn);
+        }else if(group.includes("editor")){
+            return generateAuthResponse('editor', 'Allow', editorArn);
+        }else if(group.includes("reporter")){
+            return generateAuthResponse('reporter', 'Allow', reporterArn);
+        }else{
+            return generateAuthResponse('user', 'Deny', methodArn);
         }
+    
     }catch(err){
         return generateAuthResponse('user', 'Deny', methodArn);
     }

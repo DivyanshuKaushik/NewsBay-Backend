@@ -12,11 +12,14 @@ provider:
   environment: 
     TableName: ${self:custom.tableName}
     BucketName: ${self:custom.bucketName}
+    user_pool_id: { Ref: UserPool }
+    client_id: { Ref: UserClient }
   iamRoleStatements:
     - Effect: Allow
       Action:
         - dynamodb:*
         - s3:*
+        - cognito-idp:*
       Resource: '*'
 
 plugins:
@@ -50,10 +53,10 @@ functions:
           path: api/v2/category
           method: POST
           cors: true
-          # authorizer: 
-          #   name: authenticate
-          #   identitySource: method.request.header.Authorization
-          #   type: token
+          authorizer: authenticate
+            # name: authenticate
+            # identitySource: method.request.header.Authorization
+            # type: token
   articles:
     handler: lambdas/articles.handler
     events:
@@ -61,6 +64,7 @@ functions:
           path: api/v2/articles
           method: ANY
           cors: true
+          authorizer: authenticate
   editorJob:
     handler: lambdas/editorJob.handler
     events:
@@ -68,6 +72,7 @@ functions:
           path: api/v2/getUnpublishedPosts
           method: GET
           cors: true
+          authorizer: authenticate
       - http:
           path: api/v2/postStatus
           method: PATCH
