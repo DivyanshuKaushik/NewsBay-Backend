@@ -43,19 +43,19 @@ functions:
     handler: lambdas/getCategory.handler
     events:
       - http: 
-          path: api/v2/category
+          path: api/v1/category
           method: GET
           cors: true
   category:
     handler: lambdas/category.handler
     events:
       - http: 
-          path: api/v2/category
+          path: api/v1/category
           method: POST
           cors: true
           authorizer: authenticate
       - http: 
-          path: api/v2/category/{category}
+          path: api/v1/category/{category}
           method: DELETE
           cors: true
           authorizer: authenticate
@@ -63,7 +63,7 @@ functions:
     handler: lambdas/articles.handler
     events:
       - http: 
-          path: api/v2/articles
+          path: api/v1/articles
           method: ANY
           cors: true
           authorizer: authenticate
@@ -71,17 +71,17 @@ functions:
     handler: lambdas/editorJob.handler
     events:
       - http:
-          path: api/v2/getUnpublishedPosts
+          path: api/v1/getUnpublishedPosts
           method: GET
           cors: true
           authorizer: authenticate
       - http:
-          path: api/v2/postStatus
+          path: api/v1/postStatus
           method: PATCH
           cors: true
           authorizer: authenticate
       - http:
-          path: api/v2/deletePost
+          path: api/v1/deletePost
           method: DELETE
           cors: true
           authorizer: authenticate
@@ -89,7 +89,7 @@ functions:
     handler: lambdas/getArticles.handler
     events:
       - http:
-          path: api/v2/getArticles
+          path: api/v1/getArticles
           method: GET
           cors: true
 

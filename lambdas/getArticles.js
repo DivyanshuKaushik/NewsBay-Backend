@@ -7,34 +7,7 @@ module.exports.handler = async event=>{
         const TableName = process.env.TableName
         const {category,start,end,id} = event.queryStringParameters
 
-        if(!category && !id){
-            const params = {
-                TableName,
-                KeyConditionExpression: '#pk = :pk AND begins_with(sk,:starts)',
-                FilterExpression:"#status = :stat",
-                ExpressionAttributeNames: {
-                    "#pk": "pk",
-                    '#status':"status",
-                },
-                ExpressionAttributeValues: {
-                    ':pk': "NewsBay_Article",
-                    ':starts': 'article_',
-                    ':stat':"published",
-                },
-                ScanIndexForward: false
-            }
-                
-            let articles = await DB.query(params).promise()
-    
-            if(!start || !end){
-                return Response(200,articles) 
-            }
-            articles = articles.Items.slice(start,end)
-            return Response(200,articles)
-
-        }
-
-        if(id && category){
+        if(id){
             const params = {
                 TableName,
                 Key:{
@@ -45,7 +18,7 @@ module.exports.handler = async event=>{
             const article = await DB.get(params).promise()
             return Response(200,article.Item)
         }
-        if(!id && category){
+        if(category){
             const params = {
                 TableName,
                 KeyConditionExpression: '#pk = :pk AND begins_with(sk,:starts)',
@@ -72,6 +45,31 @@ module.exports.handler = async event=>{
             articles = articles.Items.slice(start,end)
             return Response(200,articles)
         }
+
+        const params = {
+            TableName,
+            KeyConditionExpression: '#pk = :pk AND begins_with(sk,:starts)',
+            FilterExpression:"#status = :stat",
+            ExpressionAttributeNames: {
+                "#pk": "pk",
+                '#status':"status",
+            },
+            ExpressionAttributeValues: {
+                ':pk': "NewsBay_Article",
+                ':starts': 'article_',
+                ':stat':"published",
+            },
+            ScanIndexForward: false
+        }
+            
+        let articles = await DB.query(params).promise()
+
+        if(!start || !end){
+            return Response(200,articles.Items) 
+        }
+        articles = articles.Items.slice(start,end)
+        return Response(200,articles)
+
 
     }catch(error){
         Response(500,{message:"Internal Server Error!!",error})
