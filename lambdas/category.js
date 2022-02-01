@@ -4,7 +4,7 @@ const Response = require("./utils/Response");
 module.exports.handler = async (event) => {
     const tableName = process.env.TableName
   
-    if(httpMethod == 'POST'){
+    if(event.httpMethod == 'POST'){
       const {category} = JSON.parse(event.body)
       const newCategory = {
           pk:`NewsBay_Category`,
@@ -15,7 +15,7 @@ module.exports.handler = async (event) => {
       // return {body:JSON.stringify({message:"Created New Category Successfully"})}
       return Response(201,{message:"Created New Category Successfully",category:newCategory})
     }
-    if(httpMethod == 'DELETE'){
+    if(event.httpMethod == 'DELETE'){
       const {category} = event.pathParameters
       const sk =`category_${category}`,
       const delCat = await DB.delete('NewsBay_Category',sk,tableName).catch(e=>e)
