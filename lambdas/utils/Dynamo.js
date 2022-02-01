@@ -82,14 +82,28 @@ const DB = {
                 ReturnValues:"UPDATED_NEW"
             };
            
-            const res = await DB.update(params).promise()
+            const res = await docClient.update(params).promise()
             if(!res){
                 throw Error("There was an error while adding data")
             }
-            return data
+            return res
         }catch(error){
             Response(400,{error})
         }
     },
+    async delete(pk,sk,TableName){
+        const params = {
+            TableName,
+            Key:{
+                pk,
+                sk
+            }
+        }
+        const res = await docClient.delete(params).promise()
+        if(!res){
+            throw Error("There was an error while adding data")
+        }
+        return res
+    }
 }
 module.exports = DB; 

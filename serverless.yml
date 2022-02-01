@@ -46,12 +46,17 @@ functions:
           path: api/v2/category
           method: GET
           cors: true
-  addCategory:
-    handler: lambdas/addCategory.handler
+  category:
+    handler: lambdas/category.handler
     events:
       - http: 
           path: api/v2/category
           method: POST
+          cors: true
+          authorizer: authenticate
+      - http: 
+          path: api/v2/category/{category}
+          method: DELETE
           cors: true
           authorizer: authenticate
             # name: authenticate

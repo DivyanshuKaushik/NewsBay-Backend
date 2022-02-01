@@ -18,7 +18,7 @@ module.exports.handler = async(event)=>{
                     }
                 }
                 const data = await DB.get(params).promise().catch(e=>e)
-                return Response(200,{article:data}) 
+                return Response(200,data.Item) 
             }else{
                 const params = {
                     TableName,
@@ -33,7 +33,7 @@ module.exports.handler = async(event)=>{
                     },
                 }
                 const data = await DB.query(params).promise()
-                return Response(200,{articles:data.Items.reverse()}) 
+                return Response(200,data.Items.reverse()) 
             }
         }
         if(event.httpMethod=='POST'){
@@ -45,7 +45,7 @@ module.exports.handler = async(event)=>{
             }
             const articleId = generateId()
             user = `user_${user}`
-            const sk = `article_${category}_${articleId}`
+            const sk = `article_${articleId}`
             const imageUrl = await uploadImage(image,sk)
             if(!imageUrl){
                 return Response(422,{message:"Image Upload Failed!!"})
