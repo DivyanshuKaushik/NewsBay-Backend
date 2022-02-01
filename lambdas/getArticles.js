@@ -4,9 +4,6 @@ const Response = require('./utils/Response')
 
 module.exports.handler = async event=>{
     try{
-        // if(!event.queryStringParameters){
-        //     return Response(422,{message:"Please send valid queries!!"})
-        // }
         const TableName = process.env.TableName
         const {category,start,end,id} = event.queryStringParameters
 
@@ -30,7 +27,7 @@ module.exports.handler = async event=>{
             let articles = await DB.query(params).promise()
     
             if(!start || !end){
-                return Response(200,articles.Items) 
+                return Response(200,articles) 
             }
             articles = articles.Items.slice(start,end)
             return Response(200,articles)
